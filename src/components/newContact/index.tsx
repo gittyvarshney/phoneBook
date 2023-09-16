@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { Phone } from '../../types/contactType';
+import { GET_PHONE_NUMBERS } from '../../queries/getDataQuery';
+import { ApolloQueryResult } from '@apollo/client';
+import { Data } from '../../types/contactType';
+import { useQuery } from '@apollo/client';
+import { VALIDATION_ERRORS, COMMON_ERRORS, NAME_REGEX, CONTACT_NUMBER_REGEX } from '../../constants';
+import { validateFields } from '../../helper';
 import './styles.css';
 
 interface NewContactProps{
@@ -8,6 +14,7 @@ interface NewContactProps{
 
 const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
 
+    const { refetch: searchforSameName } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
     const [createContactPopup, setCreateContactPopup] = useState<boolean>(false);
 
@@ -68,56 +75,44 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
         e.stopPropagation();
     }
 
-    const validateFields = () => {
-        if(!firstName || !lastName){
-            return 'First Name or Last Name should not be empty'
-        }
-
-        const nameRegex = /^[A-Za-z]*$/;
-        const phoneRegex = /^\+\d*$/;
-
-        if(!nameRegex.test(firstName) || !nameRegex.test(firstName)){
-            return 'First Name or Last Name should only be alphabetical'
-        }
-
-        if(userContact.length === 0){
-            return 'Should Have Aleast One Contact Number'
-        }
-
-
-        for(let i=0; i<userContact.length; i++){
-            const { number: contactNumber } = userContact[i];
-
-            if(!phoneRegex.test(contactNumber)){
-                return 'Phone Number should be valid digits follow by +'
-            }
-
-            if(contactNumber.length < 10 || contactNumber.length > 14){
-                return 'Phone Number should be between 10 - 14 characters';
-            }
-
-        }
-
-        return '';
-        
-    }
-
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
 
-        const validationRes = validateFields();
+        const validationRes = validateFields(firstName,lastName,userContact);
 
         if(validationRes){
             setValidationError(validationRes);
         }else{
-            onSubmitContact(firstName,lastName,userContact);
-            setValidationError('');
+            /** Checking if It is a unique name or not */
+            searchforSameName({
+                limit: 1,
+                offset: 0,
+                where: { 
+                    first_name: {"_ilike": `${firstName}` },
+                    last_name: { "_ilike": `${lastName}`}
+                }
+            }).then((response: ApolloQueryResult<Data>) => {
+                const { data, error } = response;
+                if(error){
+                    setValidationError(COMMON_ERRORS.SOMETHING_WENT_WRONG);
+                }else{
+
+                    const { contact: contactList } = data;
+                    if(!contactList || contactList.length !== 0){
+                        setValidationError(COMMON_ERRORS.NON_UNIQUE_NAME);
+                    }else{
+                        onSubmitContact(firstName,lastName,userContact);
+                        setValidationError('');
+                        togglePopup()
+                    }
+                }
+            })
         }
         e.stopPropagation();
     }
 
-    const togglePopup = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
+    const togglePopup = (e?: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         setCreateContactPopup((prev) => !prev);
-        e.stopPropagation();
+        e && e.stopPropagation();
     }
 
 

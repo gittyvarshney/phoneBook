@@ -1,0 +1,16 @@
+.editName-wrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+.curr-names{
+    display: flex;
+}
+
+.update-wrapper{
+    display: flex;
+}
+
+.action-btns{
+    display: flex;
+}

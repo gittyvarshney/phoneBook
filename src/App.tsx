@@ -1,5 +1,5 @@
-import useDataQuery from "./hooks/useQuery";
-import { useState } from "react";
+import useDataQuery from "./hooks/useDataQuery";
+
 import Content from "./components/content";
 import HeaderRow from "./components/header";
 import Pagination from "./components/pagination";
@@ -13,26 +13,30 @@ const App = () => {
 
   const {favouritesContacts, regularContacts, currentPage, isNextPageDisabled } = pageData;
 
-  const {onDeleteClick, onAddToFavourite, onDeleteFromFavourite, onCreateNewContact, fetchPageData, onChangeInput } = actions;
+  const { onChangeInput, onCreateNewContact, fetchPageData, ...restCallToActions } = actions;
 
   return (
     <>
-      <SearchInput onChangeInput={onChangeInput} />
-      <NewContact onSubmitContact={onCreateNewContact} />
+      <div style={{ display: 'flex'}}>
+        <SearchInput onChangeInput={onChangeInput} />
+        <NewContact onSubmitContact={onCreateNewContact} />
+      </div>
       <HeaderRow  />
       <Content
-      contactList={favouritesContacts} 
-      onDeleteClick={onDeleteClick} 
-      onAddToFavourite={onAddToFavourite} 
-      onDeleteFromFavourite={onDeleteFromFavourite}
+      contactList={favouritesContacts}
+      currentPage={currentPage}
+      onPageChange={fetchPageData}
       isFavourite={true}
+      {...restCallToActions} 
       />
 
       <Content
-      contactList={regularContacts} 
-      onDeleteClick={onDeleteClick} 
-      onAddToFavourite={onAddToFavourite} 
-      onDeleteFromFavourite={onDeleteFromFavourite} />
+      contactList={regularContacts}
+      currentPage={currentPage}
+      onPageChange={fetchPageData}
+      {...restCallToActions} 
+
+      />
 
       <Pagination currentPage={currentPage} isNextDisabled={isNextPageDisabled} onPageChange={fetchPageData} />
 

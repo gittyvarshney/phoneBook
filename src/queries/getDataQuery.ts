@@ -32,7 +32,7 @@ export const DELETE_CONTACT = gql(`
   }
   `);
 
-export const ADD_CONTACT = gql`
+export const ADD_CONTACT = gql(`
 mutation AddContactWithPhones(
   $first_name: String!, 
   $last_name: String!, 
@@ -56,5 +56,17 @@ insert_contact(
     }
   }
 }
+}`);
+
+export const EDIT_CONTACT_NAME = gql`
+mutation EditContactById($id: Int!, $_set: contact_set_input) {
+  update_contact_by_pk(pk_columns: {id: $id}, _set: $_set) {
+    id
+    first_name
+    last_name
+    phones {
+      number
+    }
+  }
 }
-  `
+`

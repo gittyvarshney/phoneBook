@@ -3,72 +3,20 @@ import { ApolloQueryResult, useQuery, useMutation } from "@apollo/client";
 import { DELETE_CONTACT, GET_PHONE_NUMBERS, ADD_CONTACT } from "../queries/getDataQuery";
 import { Data, ContactList, ContactInfo, Phone, DeletedData } from "../types/contactType";
 import { getDataFromLocalStorage } from "./manageLocalStorage";
+import { filterOutFavourites, filterContactById, checkIfListIncludesId } from "../helper";
 
-import { GetContactListVariable } from "../types/queryVariableTypes";
-
-import { MOCK_DATA_RES, MOCK_DATA_RES_SHORT, MOCK_DATA_RES_EMPTY } from "../mock";
-
-const filterOutFavourites = <T extends ContactList>(contactList: T, favouritesList: T): ContactList => {
-
-    return contactList.filter((contact) => {
-
-        const isFound = favouritesList.find((favContact) => {
-            if(contact.id === favContact.id){
-                return true;
-            }
-            return false;
-        })
-        return isFound ? false: true;
-
-    })
-
-}
-
-const filterContactById = (contactList: ContactList , id: number): ContactList => {
-
-    return contactList.filter((contact) => {
-
-        if(contact.id === id){
-            return false;
-        }
-        return true;
-    })
-
-}
-
-const checkIfListIncludesId = (contactList: ContactList , id: number): ContactInfo | undefined => {
-
-    return contactList.find((contact) => {
-
-        if(contact.id === id){
-            return true;
-        }
-        return false;
-    })
-
-}
-
+import { PAGE_LIMIT } from "../constants";
 
 
 export const useDataQuery = () => {
 
-    const { refetch: fetchContactData } = useQuery(GET_PHONE_NUMBERS, { skip: true, variables: {limit: 10, offset: 0, where: { } }})
+    const { refetch: fetchContactData } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
-    const [ deleteContactById, { data: deletedData, loading: loadingDelete, error: errorDeleteing }] = useMutation(DELETE_CONTACT, {
-        variables: {
-            id: 99999
-        },
-      });
+    const [ deleteContactById, { data: deletedData, loading: loadingDelete, error: errorDeleteing }] = useMutation(DELETE_CONTACT);
 
       console.log("deleted data: ", deletedData, "loadingDeleted: ", loadingDelete, "error deleting: ", errorDeleteing);
 
-      const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT, {
-        variables: {
-            first_name: '', 
-            last_name: '',
-            phones: [] 
-        },
-      });
+      const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT);
 
       console.log("addition data: ", additonData, "loadingaddition: ", loadingAdd, "error addition: ", errorAdding);
 
@@ -84,14 +32,6 @@ export const useDataQuery = () => {
 
       useEffect(() => {
 
-        if(searchInput){
-            fetchPageData(10,0)
-        }
-
-      },[searchInput])
-
-      useEffect(() => {
-
         const { userData, userPage, userFavourites } = getDataFromLocalStorage('userData', 'currKey', 'userFavourites');
     
         if(userData && userPage && userFavourites){
@@ -99,22 +39,27 @@ export const useDataQuery = () => {
             setFavourites(favourites);
             setRegulars(regulars);
         }else{
-            fetchPageData(10,0)
+            fetchPageData(PAGE_LIMIT,0)
         }
     
         },[]);
 
-      const deleteContact = (contactId: number) => {
+      useEffect(() => {
 
-        if(checkIfListIncludesId(favourites,contactId)){
-            const newFavouritesList = filterContactById(favourites,contactId);
-            setFavourites(newFavouritesList);
+        if(searchInput){
+            fetchPageData(PAGE_LIMIT,0)
         }
 
-        fetchPageData(10, currPage);
+      },[searchInput])
 
-    }
+      useEffect(() => {
 
+        if(additonData){
+            const { first_name, last_name } = additonData;
+            onSuccessFullAddition();
+        }
+
+    },[additonData, loadingAdd, errorAdding])
 
     useEffect(() => {
 
@@ -127,21 +72,25 @@ export const useDataQuery = () => {
 
     },[deletedData, loadingDelete, errorDeleteing])
 
+      const deleteContact = (contactId: number) => {
 
-    const onSuccessFullAddition = (firstName: string, lastName: string) => {
+        if(checkIfListIncludesId(favourites,contactId)){
+            const newFavouritesList = filterContactById(favourites,contactId);
+            setFavourites(newFavouritesList);
+        }
 
-        fetchPageData(10, currPage);
+        fetchPageData(PAGE_LIMIT, currPage);
 
     }
 
-    useEffect(() => {
 
-        if(additonData){
-            const { first_name, last_name } = additonData;
-            onSuccessFullAddition(first_name, last_name);
-        }
+    const onSuccessFullAddition = () => {
 
-    },[additonData, loadingAdd, errorAdding])
+        fetchPageData(PAGE_LIMIT, currPage);
+
+    }
+
+
 
     const fetchPageData = (limit: number, offset: number, favList: ContactList| null = null) => {
         const searchQuery = searchInput ? { first_name: {_like: `%${searchInput}%`} } : {};
@@ -152,8 +101,8 @@ export const useDataQuery = () => {
                 offset,
                 where: searchQuery
         })
-        .then((response: any /*ApolloQueryResult<Data>*/) => {
-            console.log("response is: ", response);
+        .then((response: ApolloQueryResult<Data>) => {
+
             const { data, error } = response;
 
             if(error){
@@ -173,7 +122,7 @@ export const useDataQuery = () => {
                     }
 
 
-                    setNextPageDisabled(contactList.length < 10 ? true : false);
+                    setNextPageDisabled(contactList.length < PAGE_LIMIT ? true : false);
 
                     setCurrPage(offset);
                 }
@@ -193,7 +142,7 @@ export const useDataQuery = () => {
 
         setFavourites(newFavouritesList)
 
-        fetchPageData(10, currPage,newFavouritesList);
+        fetchPageData(PAGE_LIMIT, currPage,newFavouritesList);
 
     }
 
@@ -204,9 +153,9 @@ export const useDataQuery = () => {
         if(checkIfListIncludesId(favourites,id)){
             const newFavouritesList = filterContactById(favourites,id);
             setFavourites(newFavouritesList);
-            fetchPageData(10, currPage,newFavouritesList);
+            fetchPageData(PAGE_LIMIT, currPage,newFavouritesList);
         }else{
-            fetchPageData(10,currPage);
+            fetchPageData(PAGE_LIMIT,currPage);
         }
 
     }
