@@ -1,0 +1,23 @@
+.popupWrapper{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e6e8e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contentWrapper{
+    background-color: white;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+}
+
+.bottom-btns{
+    display: flex;
+    
+}

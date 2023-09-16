@@ -1,0 +1,32 @@
+
+.fav-placeholder{
+    margin-block: 10px;
+    font-size: 16px;
+}
+
+.contentWrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+.contentRow{
+    display: flex;
+}
+
+.nameRow{
+    display: flex;
+    width: 20%;
+    flex-wrap: wrap;
+}
+
+.contactRow{
+    display: flex;
+    width: 60%;
+    flex-wrap: wrap;
+}
+
+.actionsRow{
+    width: 20%;
+    display: flex;
+    flex-wrap: wrap;
+}
