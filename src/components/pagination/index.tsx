@@ -1,5 +1,5 @@
 import React from 'react';
-import './styles.css';
+import { PaginationWrapper, Button } from './styles';
 
 interface PaginationProps{
     currentPage: number,
@@ -23,13 +23,13 @@ const Pagination: React.FC<PaginationProps> = (props): React.ReactElement => {
     }
 
     return(
-        <div className='paginationWrapper'>
-            <button id='prev-btn' onClick={handlePageChange}> Previous </button>
-            <div className='currentPage'>
-                {`Current Page is ${currentPage + 1}`}
-            </div>
-            <button id='next-btn' onClick={handlePageChange}> Next </button>
-        </div>
+        <PaginationWrapper className='paginationWrapper'>
+            <Button id='prev-btn' className={`${currentPage === 0 ? 'disable' : ''}`} onClick={handlePageChange}> Previous </Button>
+            <p className='currentPage'>
+                {currentPage + 1}
+            </p>
+            <Button id='next-btn' className={`${isNextDisabled ? 'disable' : ''}`} onClick={handlePageChange}> Next </Button>
+        </PaginationWrapper>
     )
 
 }

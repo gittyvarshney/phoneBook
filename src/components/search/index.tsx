@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import { getUserSearchInput } from '../../hooks/manageLocalStorage';
 import { Input } from './styles';
 
 interface SearchInputProps{
@@ -19,17 +19,24 @@ const SearchInput: React.FC<SearchInputProps> = ({onChangeInput}) => {
     }
 
     useEffect(() => {
-
         const debounceInput = setTimeout(() => {
             onChangeInput(searchVal)
 
         },1000)
 
         return () => {
-            clearInterval(debounceInput)
+            clearTimeout(debounceInput)
         }
 
-    },[searchVal])
+    },[searchVal]);
+
+    useEffect(() => {
+        const searchInput = getUserSearchInput();
+        console.log("userSearchInput mount is: ", searchInput);
+        if(searchInput){
+            setSearchVal(searchInput);
+        }
+    },[])
 
     return(
 

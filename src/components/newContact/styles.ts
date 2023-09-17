@@ -24,13 +24,27 @@ export const Button = styled.button`
 
 `
 
+export const CustomButton = styled.button`
+    background-color: #FAFBFC;
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    border-radius: 6px;
+    box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+    box-sizing: border-box;
+    color: #24292E;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    padding: 0.6rem 1.6rem;
+    word-wrap: break-word;
+    cursor: pointer;
+`
+
 export const PopupWrapper = styled.div`
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(206, 217, 193, 0.58);
+    background-color: rgba(70, 74, 79, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,17 +92,8 @@ export const PopupWrapper = styled.div`
                 margin-block: 1rem;
                 justify-content: center;
 
-            & button{
-                align-items: center;
-                background-color: #27ae60;
-                cursor: pointer;
-                border-radius: 10rem;
-                color: #ffffff;
-                font-size: 1.6rem;
-                font-weight: 600;
-                border-style: none;
-                padding: 1rem;
-                text-align: center;
+            & button:hover{
+                background-color: #bed8ce;
             }
         }
 
@@ -110,19 +115,8 @@ export const PopupWrapper = styled.div`
                     border-radius: 1rem;
                 }
 
-                & button{
-                    align-items: center;
-                    background-color: #FF4742;
-                    margin-left: 1.4rem;
-                    cursor: pointer;
-                    border-radius: 10rem;
-                    color: #ffffff;
-                    font-size: 1.6rem;
-                    font-weight: 600;
-                    border-style: none;
-                    padding: 1rem;
-                    text-align: center;
-
+                & button:hover{
+                    background-color: #f1e8eb;
                 }
             }
         }
@@ -132,22 +126,13 @@ export const PopupWrapper = styled.div`
             justify-content: center;
             display: flex;
 
-            & button{
-                    align-items: center;
-                    background-color: #FF4742;
-                    margin-left: 1.4rem;
-                    cursor: pointer;
-                    border-radius: 1.2rem;
-                    color: #ffffff;
-                    font-size: 1.6rem;
-                    font-weight: 600;
-                    border-style: none;
-                    padding: 1rem;
-                    text-align: center;
+            & button:hover{
+                margin-left: 1rem;
+                background-color: #f1e8eb;
             }
 
-            & .submit{
-                background-color: #27ae60;
+            & .submit:hover{
+                background-color: #d4e3d9;
             }
         }
 

@@ -3,9 +3,15 @@ import styled from "@emotion/styled";
 export const HeaderWrapper = styled.div`
 
     font-size: 1.6rem;
-    margin-top: 1rem;
+    font-weight: 600;
+    padding-block: 1.2rem;
     width: 100%;
     display: flex;
+    border-bottom: 2px solid #f2f0ed;
+
+    @media (max-width: 600px) {
+            display: none;
+        }
 
     & .nameWrapper{
         display: flex;

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ApolloQueryResult, useQuery, useMutation } from "@apollo/client";
 import { DELETE_CONTACT, GET_PHONE_NUMBERS, ADD_CONTACT } from "../queries/getDataQuery";
 import { Data, ContactList, ContactInfo, Phone, DeletedData } from "../types/contactType";
-import { getDataFromLocalStorage } from "./manageLocalStorage";
+import { getDataFromLocalStorage, setDataInLocalStorage } from "./manageLocalStorage";
 import { filterOutFavourites, filterContactById, checkIfListIncludesId } from "../helper";
 
 import { PAGE_LIMIT } from "../constants";
@@ -32,14 +32,20 @@ export const useDataQuery = () => {
 
       const [ searchInput, setSearchInput ] = useState<string>('');
 
+      const initRender = useRef<boolean>(true);
+
       useEffect(() => {
 
-        const { userData, userPage, userFavourites } = getDataFromLocalStorage('userData', 'currKey', 'userFavourites');
+        const { userData, userPage, userFavourites } = getDataFromLocalStorage();
+
+        console.log("user data mount is: ", userData);
+        console.log("favourites data mount is: ", userFavourites);
+        console.log("user page mount is: ", userPage);
     
-        if(userData && userPage && userFavourites){
+        if(userData && typeof userPage === 'number' && userFavourites){
             setCurrPage(Number(userPage));
-            setFavourites(favourites);
-            setRegulars(regulars);
+            setFavourites(userFavourites);
+            setRegulars(userData);
         }else{
             fetchPageData(PAGE_LIMIT,0)
         }
@@ -48,7 +54,9 @@ export const useDataQuery = () => {
 
       useEffect(() => {
 
-        if(searchInput){
+        if(searchInput || !initRender.current){
+            console.log("in search input");
+            initRender.current = false;
             fetchPageData(PAGE_LIMIT,0)
         }
 
@@ -96,13 +104,13 @@ export const useDataQuery = () => {
 
     const fetchPageData = (limit: number, offset: number, favList: ContactList| null = null) => {
         const searchQuery = searchInput ? { first_name: {_like: `%${searchInput}%`} } : {};
-        Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
-        // fetchContactData({
-        //         limit,
-        //         offset,
-        //         where: searchQuery
-        // })
-        .then((response: any /* ApolloQueryResult<Data> */) => {
+        // Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
+        fetchContactData({
+                limit,
+                offset,
+                where: searchQuery
+        })
+        .then((response: ApolloQueryResult<Data>) => {
 
             const { data, error } = response;
 
@@ -180,6 +188,12 @@ export const useDataQuery = () => {
               }
         })
     }
+
+    /** Use Effect to save in local storage */
+
+    useEffect(() => {
+        setDataInLocalStorage(regulars,favourites,currPage,searchInput);
+    },[searchInput,favourites,regulars,currPage])
 
 
 

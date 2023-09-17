@@ -4,6 +4,8 @@ import { GET_PHONE_NUMBERS, EDIT_CONTACT_NAME } from '../../queries/getDataQuery
 import { validateFields } from '../../helper';
 import { PAGE_LIMIT } from '../../constants';
 
+import { Popup, Button } from './styles';
+
 import { Data } from '../../types/contactType';
 
 interface EditNameProps{
@@ -96,36 +98,32 @@ const EditName: React.FC<EditNameProps> = (props) => {
     }
 
     return(
-        <div className='editName-wrapper' onClick={(e) => e.stopPropagation()}>
-            <p>
-            Edit Name
-            </p>
+        <Popup className='editName-wrapper' onClick={(e) => e.stopPropagation()}>
+            <h2> Edit Name </h2>
             <div className='curr-names'>
                 <p>First Name:</p>
-                <p>{firstName}</p>
+                <p className='name-value'>{firstName}</p>
             </div>
             <div className='curr-names'>
                 <p>Last Name:</p>
-                <p>{lastName}</p>
+                <p className='name-value'>{lastName}</p>
             </div>
             <div className='update-wrapper'>
-                <label>Update First Name</label>
-                <input id='first-name-input' value={updateFirstName} max={20} onChange={handleNameInput} />
+                <input id='first-name-input' value={updateFirstName} max={20} onChange={handleNameInput} placeholder='Enter New First Name' />
             </div>
             <div className='update-wrapper'>
-                <label>Update Last Name</label>
-                <input id='last-name-input' value={updateLastName} max={20} onChange={handleNameInput} />
+                <input id='last-name-input' value={updateLastName} max={20} onChange={handleNameInput}  placeholder='Enter New Last Name' />
             </div>
             <div className='action-btns'>
-                <button onClick={togglePopup}>Cancel</button>
-                { loading ? 'Loading' : <button onClick={handleSubmit}>Submit</button>}
+                <Button className='cancel' onClick={togglePopup}>Cancel</Button>
+                { loading ? 'Loading' : <Button className='submit' onClick={handleSubmit}>Submit</Button>}
             </div>
             {validationError && 
                 <div className='validation'>
                     <p>{validationError}</p>
                 </div>
             }
-        </div>
+        </Popup>
     )
 
 }

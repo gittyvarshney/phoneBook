@@ -10,7 +10,7 @@ const HeaderRow: React.FC<{}> = (): React.ReactElement => {
                 Contact Name
             </div>
             <div className='contactWrapper'>
-                Contact Number
+                Contact Number(s)
             </div>
             <div className='actionsWrapper'>
                 Actions

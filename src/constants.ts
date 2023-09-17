@@ -15,3 +15,5 @@ export const COMMON_ERRORS = {
 
 export const NAME_REGEX = /^[A-Za-z]*$/;
 export const CONTACT_NUMBER_REGEX = /^\+\d*$/;
+
+export const TRIANGLE_IMG_CDN_URL = 'https://img.icons8.com/material-rounded/24/give-way.png';

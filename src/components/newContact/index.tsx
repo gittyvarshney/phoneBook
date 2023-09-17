@@ -4,9 +4,9 @@ import { GET_PHONE_NUMBERS } from '../../queries/getDataQuery';
 import { ApolloQueryResult } from '@apollo/client';
 import { Data } from '../../types/contactType';
 import { useQuery } from '@apollo/client';
-import { VALIDATION_ERRORS, COMMON_ERRORS, NAME_REGEX, CONTACT_NUMBER_REGEX } from '../../constants';
+import { VALIDATION_ERRORS, COMMON_ERRORS } from '../../constants';
 import { validateFields } from '../../helper';
-import { Button, PopupWrapper } from './styles';
+import { Button, PopupWrapper, CustomButton } from './styles';
 
 interface NewContactProps{
     onSubmitContact: (firstName: string, lastName: string, phones: Phone[]) => void
@@ -133,7 +133,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
                         <input id='last-name-input' value={lastName} max={20} onChange={handleNameInput} placeholder='Input Last Name' />
                     </div>
                     <div className='add-contact'>
-                        <button onClick={handleContactAdd}> Add Contact</button>
+                        <CustomButton onClick={handleContactAdd}> Add Contact </CustomButton>
                     </div>
                     <div className='contact-scroll'>
                     {userContact.map((contact,index) => {
@@ -141,14 +141,14 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
                         return (
                             <div key={`${index}-cntc`} className='contact-input' >
                                 <input value={contactNumber} pattern='^\+\d*$' max={15} onChange={(e) => handleInputContact(e,index)} />
-                                <button id={`${index}`} onClick={handleDeleteContact}> Delete </button>
+                                <CustomButton id={`${index}`} onClick={handleDeleteContact}> Delete </CustomButton>
                             </div>
                         )
                     })}
                     </div>
                     <div className='bottom-btns'>
-                        <button className='close' onClick={togglePopup}> Close </button>
-                        <button className='submit' onClick={handleSubmit}> Submit </button>
+                        <CustomButton className='close' onClick={togglePopup}> Close </CustomButton>
+                        <CustomButton className='submit' onClick={handleSubmit}> Submit </CustomButton>
                     </div>
                     {validationError && 
                         <div className='validation'>

@@ -1,7 +1,8 @@
 import React, { useState} from 'react';
 import { ContactList, ContactInfo } from '../../types/contactType';
 import EditName from '../editName';
-import './styles.css';
+import { Heading, ContentSection, Button, PopupWrapper, Accordian } from './styles';
+import { TRIANGLE_IMG_CDN_URL } from '../../constants';
 
 interface ContentProps{
     contactList: ContactList,
@@ -18,6 +19,8 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
     const { contactList, onDeleteClick, onAddToFavourite, onDeleteFromFavourite, isFavourite = false, currentPage, onPageChange } = props || {};
 
     const [editNamePopup, setEditNamePopup] = useState<boolean| number>(false);
+
+    const [contentView, setContentView] = useState<boolean>(true);
 
 
     const handleFavourite = (e:  React.MouseEvent<HTMLButtonElement>, contact: ContactInfo) => {
@@ -42,36 +45,50 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
         e && e.stopPropagation();
     }
 
+    const toggleView = (e?: React.MouseEvent<HTMLDivElement>) => {
+
+        setContentView(prev => !prev);
+
+        e?.stopPropagation();
+    }
+
     return (
         <>
-        <p className='fav-placeholder'>{ isFavourite ? 'Favourite Contacts' : 'Regular Contacts' }</p>
-        <div className='contentWrapper'>
+        <Accordian onClick={toggleView} visible={contentView}>
+            <img width="14" height="14" src={TRIANGLE_IMG_CDN_URL} alt="Toggle"/>
+            <Heading isFavourite={isFavourite} className='fav-placeholder'>{ isFavourite ? 'Favourite Contacts' : 'Regular Contacts' }</Heading>
+        </Accordian>
+        {contentView && <ContentSection isFavourite={isFavourite} className='contentWrapper'>
             {
                 contactList.map((contact: ContactInfo, index: number) => {
                     const { first_name, last_name, id, phones } = contact || {};
 
                     return (
                         <div key={`${id}-row-${index}`} className='contentRow' >
-                            <p className='nameRow'>
-                                {`${first_name} ${last_name}`}
-                            </p>
+                            <div className='name-wrapper'>
+                                <p className='name-label-mobile'> Name: </p>
+                                <p className='nameRow'>
+                                    {`${first_name} ${last_name}`}
+                                </p>
+                            </div>
                             <div className='contactRow'>
+                                <p className='contact-label-mobile'> Contact(s): </p>
                                 {phones.map((contactNumber, contactIdx) => {
                                     const { number } = contactNumber;
                                     return(
-                                        <p key={`${contactIdx}-number`}>
+                                        <p key={`${contactIdx}-number`} className='contact-number'>
                                         {number}
                                         </p>
                                     )
                                 })}
                             </div>
                             <div className='actionsRow'>
-                                <button onClick={(e) => handleFavourite(e, contact)}>{isFavourite ? 'Delete From Favourites' : 'Add To Favourites'}</button>
-                                <button onClick={(e) => handleDelete(e,id)}> Delete </button>
-                                <button onClick={(e) => toggleEditName(e,id)}> Edit Contact</button>
+                                <Button onClick={(e) => handleFavourite(e, contact)}>{isFavourite ? 'Delete From Favourites' : 'Add To Favourites'}</Button>
+                                <Button className='deleteContact' onClick={(e) => handleDelete(e,id)}> Delete </Button>
+                                <Button className='editContact' onClick={(e) => toggleEditName(e,id)}> Edit Contact</Button>
                             </div>
                             { editNamePopup && editNamePopup === id &&
-                                <div className='edit-name-popupWrapper' onClick={toggleEditName}>
+                                <PopupWrapper className='edit-name-popupWrapper' onClick={toggleEditName}>
                                     <EditName 
                                         firstName={first_name} 
                                         lastName={last_name} 
@@ -80,15 +97,14 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
                                         onPageChange={onPageChange} 
                                         togglePopup={toggleEditName}
                                     />
-                                </div>
+                                </PopupWrapper>
                             }
                         </div>
                     )
 
                 })
             }
-
-        </div>
+        </ContentSection>}
         </>
     )
 }
