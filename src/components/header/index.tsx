@@ -1,10 +1,11 @@
 import React from 'react';
-import './styles.css';
+import { HeaderWrapper } from './styles';
+// import './styles.css';
 
 
 const HeaderRow: React.FC<{}> = (): React.ReactElement => {
     return (
-        <div className='headerWrapper'>
+        <HeaderWrapper className='headerWrapper'>
             <div className='nameWrapper'>
                 Contact Name
             </div>
@@ -14,7 +15,7 @@ const HeaderRow: React.FC<{}> = (): React.ReactElement => {
             <div className='actionsWrapper'>
                 Actions
             </div>
-        </div>
+        </HeaderWrapper>
     )
 }
 

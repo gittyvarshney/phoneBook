@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import { Input } from './styles';
 
 interface SearchInputProps{
     onChangeInput: (value: string ) => void;
@@ -31,9 +32,9 @@ const SearchInput: React.FC<SearchInputProps> = ({onChangeInput}) => {
     },[searchVal])
 
     return(
-        <div className='top-search-bar'>
-            <input value={searchVal} max={25} onChange={onHandleThrottle} />
-        </div>
+
+        <Input value={searchVal} placeholder='Search for a Contact Name' max={25} onChange={onHandleThrottle} />
+
     )
 
 }

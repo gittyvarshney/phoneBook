@@ -7,6 +7,8 @@ import { filterOutFavourites, filterContactById, checkIfListIncludesId } from ".
 
 import { PAGE_LIMIT } from "../constants";
 
+import { MOCK_DATA_RES, MOCK_DATA_RES_EMPTY } from "../mock";
+
 
 export const useDataQuery = () => {
 
@@ -94,14 +96,13 @@ export const useDataQuery = () => {
 
     const fetchPageData = (limit: number, offset: number, favList: ContactList| null = null) => {
         const searchQuery = searchInput ? { first_name: {_like: `%${searchInput}%`} } : {};
-        // Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
-
-        fetchContactData({
-                limit,
-                offset,
-                where: searchQuery
-        })
-        .then((response: ApolloQueryResult<Data>) => {
+        Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
+        // fetchContactData({
+        //         limit,
+        //         offset,
+        //         where: searchQuery
+        // })
+        .then((response: any /* ApolloQueryResult<Data> */) => {
 
             const { data, error } = response;
 

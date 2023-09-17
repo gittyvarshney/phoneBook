@@ -16,7 +16,8 @@
     "isolatedModules": true,
     "downlevelIteration": true,
     "noEmit": true,
-    "jsx": "preserve"
+    "jsxImportSource": "@emotion/react",
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts","src/**/*.tsx", "src/**/*.js"],
   "references": [{ "path": "./tsconfig.node.json" }]

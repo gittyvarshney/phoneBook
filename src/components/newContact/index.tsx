@@ -6,7 +6,7 @@ import { Data } from '../../types/contactType';
 import { useQuery } from '@apollo/client';
 import { VALIDATION_ERRORS, COMMON_ERRORS, NAME_REGEX, CONTACT_NUMBER_REGEX } from '../../constants';
 import { validateFields } from '../../helper';
-import './styles.css';
+import { Button, PopupWrapper } from './styles';
 
 interface NewContactProps{
     onSubmitContact: (firstName: string, lastName: string, phones: Phone[]) => void
@@ -22,7 +22,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
 
     const [userContact, setUserContact] = useState<Phone[]>([]);
 
-    const [validationError, setValidationError] = useState<string>('');
+    const [validationError, setValidationError] = useState<string>(VALIDATION_ERRORS.NAMING_INVALID);
 
     const { first_name: firstName, last_name: lastName} = userName;
 
@@ -120,20 +120,22 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
     return(
         <>
         <div className='create-contact'>
-            <button onClick={togglePopup}> Create New </button>
+            <Button onClick={togglePopup}> Create New </Button>
         </div>
         {createContactPopup && 
-            (<div className='popupWrapper' onClick={togglePopup}>
+            (<PopupWrapper className='popupWrapper' onClick={togglePopup}>
                 <div className='contentWrapper' onClick={(e) => e.stopPropagation()}>
+                    <h2> Create New Contact</h2>
                     <div className='first-name-input-wrapper'>
-                        <input id='first-name-input' value={firstName} max={20} onChange={handleNameInput} />
+                        <input id='first-name-input' value={firstName} max={20} onChange={handleNameInput} placeholder='Input First Name' />
                     </div>
                     <div className='last-name-input-wrapper'>
-                        <input id='last-name-input' value={lastName} max={20} onChange={handleNameInput} />
+                        <input id='last-name-input' value={lastName} max={20} onChange={handleNameInput} placeholder='Input Last Name' />
                     </div>
-                    <div className='add-contant'>
+                    <div className='add-contact'>
                         <button onClick={handleContactAdd}> Add Contact</button>
                     </div>
+                    <div className='contact-scroll'>
                     {userContact.map((contact,index) => {
                         const { number: contactNumber } = contact;
                         return (
@@ -143,9 +145,10 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
                             </div>
                         )
                     })}
+                    </div>
                     <div className='bottom-btns'>
-                        <button onClick={togglePopup}> Close </button>
-                        <button onClick={handleSubmit}> Submit </button>
+                        <button className='close' onClick={togglePopup}> Close </button>
+                        <button className='submit' onClick={handleSubmit}> Submit </button>
                     </div>
                     {validationError && 
                         <div className='validation'>
@@ -153,7 +156,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
                         </div>
                         }
                 </div>
-            </div>)
+            </PopupWrapper>)
         }
         </>
     )

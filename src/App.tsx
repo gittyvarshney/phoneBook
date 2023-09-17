@@ -6,6 +6,8 @@ import Pagination from "./components/pagination";
 import NewContact from "./components/newContact";
 import SearchInput from "./components/search";
 
+import { Div } from "./AppStyles";
+
 const App = () => {
 
 
@@ -17,10 +19,10 @@ const App = () => {
 
   return (
     <>
-      <div style={{ display: 'flex'}}>
-        <SearchInput onChangeInput={onChangeInput} />
+      <Div >
         <NewContact onSubmitContact={onCreateNewContact} />
-      </div>
+        <SearchInput onChangeInput={onChangeInput} />
+      </Div>
       <HeaderRow  />
       <Content
       contactList={favouritesContacts}
