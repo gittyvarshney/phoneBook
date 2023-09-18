@@ -1,5 +1,5 @@
 
-import { ContactList } from "../types/contactType";
+import { ContactList } from "./types/contactType";
 
 const LOCAL_STORAGE_KEYS = {
     REGULAR_DATA_KEY: 'regular',
@@ -8,6 +8,8 @@ const LOCAL_STORAGE_KEYS = {
     SEARCH_KEY: 'searchInput'
 }
 
+/** function used to get Data from the local storage which are
+ *  regular data, favourites data, current page */
 export const getDataFromLocalStorage = () => {
 
     const savedUserData = localStorage.getItem(LOCAL_STORAGE_KEYS.REGULAR_DATA_KEY);
@@ -20,24 +22,20 @@ export const getDataFromLocalStorage = () => {
     const userPage = savedUserPage && JSON.parse(savedUserPage);
     const userFavourites = savedUserFavourites && JSON.parse(savedUserFavourites);
 
-    console.log("user data parsed is: ", userData);
-    console.log("favourites data parsed is: ", userFavourites);
-    console.log("user page parsed is: ", userPage);
-
     return { userData, userPage, userFavourites}
 }
 
+/** function used to get the users input on search bar from local storage */
 export const getUserSearchInput = () => {
 
     const savedUserSearch = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_KEY);
 
     const userSearchKey = savedUserSearch && JSON.parse(savedUserSearch);
 
-    console.log("userSearchInput parsed is: ", userSearchKey);
-
     return userSearchKey;
 }
 
+/** this function will set all the important page data to the local storage when the corresponding data updates */
 export const setDataInLocalStorage = (regularData: ContactList, favouritesData: ContactList, currPage: number, searchInput: string) => {
 
     localStorage.setItem(LOCAL_STORAGE_KEYS.REGULAR_DATA_KEY,JSON.stringify(regularData))

@@ -45,6 +45,7 @@ export const PopupWrapper = styled.div`
     width: 100%;
     height: 100%;
     background-color: rgba(70, 74, 79, 0.7);
+    z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,14 +58,16 @@ export const PopupWrapper = styled.div`
         display: flex;
         border-radius: 1rem;
         flex-direction: column;
-        padding: 1rem;
+        padding: 1.5rem;
 
         @media (max-width: 800px) {
             width: 90%;
         }
 
         & h2{
-            font-size: 2rem;
+            margin-top: 0;
+            color: #6c6f76;
+            font-size: 2.1rem;
             text-align: center;
         }
 

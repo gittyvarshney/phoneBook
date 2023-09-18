@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';  
 
+/** Query to get phone numbers from the database */
 export const GET_PHONE_NUMBERS = gql(`
   query GetContactList (
       $limit: Int, 
@@ -22,6 +23,7 @@ export const GET_PHONE_NUMBERS = gql(`
   }
   `);
 
+/** Query to delete the contact from the database */
 export const DELETE_CONTACT = gql(`
   mutation MyMutation($id: Int!) {
     delete_contact_by_pk(id: $id) {
@@ -32,6 +34,7 @@ export const DELETE_CONTACT = gql(`
   }
   `);
 
+/** Query to add the contact in the database */
 export const ADD_CONTACT = gql(`
 mutation AddContactWithPhones(
   $first_name: String!, 
@@ -58,6 +61,7 @@ insert_contact(
 }
 }`);
 
+/** Query to edit the contact details in the database */
 export const EDIT_CONTACT_NAME = gql`
 mutation EditContactById($id: Int!, $_set: contact_set_input) {
   update_contact_by_pk(pk_columns: {id: $id}, _set: $_set) {

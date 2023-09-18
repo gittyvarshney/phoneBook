@@ -1,11 +1,11 @@
 
 import { Phone, ContactList, ContactInfo } from "./types/contactType";
-import { VALIDATION_ERRORS, NAME_REGEX, CONTACT_NUMBER_REGEX} from "./constants";
+import { VALIDATION_ERRORS, NAME_REGEX, CONTACT_NUMBER_REGEX, CONTACT_NUMBER_LENGTH__REGEX} from "./constants";
 
 
 export const validateFields = (firstName: string, lastName: string, userContact?: Phone[]) => {
     if(!firstName || !lastName){
-        return VALIDATION_ERRORS.EMPTY_NAME
+        return VALIDATION_ERRORS.EMPTY_NAME;
     }
 
     if(!NAME_REGEX.test(firstName) || !NAME_REGEX.test(lastName)){
@@ -25,7 +25,7 @@ export const validateFields = (firstName: string, lastName: string, userContact?
                 return VALIDATION_ERRORS.PHONE_INVALID_DIGITS;
             }
 
-            if(contactNumber.length < 10 || contactNumber.length > 14){
+            if(!CONTACT_NUMBER_LENGTH__REGEX.test(contactNumber)){
                 return VALIDATION_ERRORS.PHONE_INVALID_DIGITS_LENGTH;
             }
 

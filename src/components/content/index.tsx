@@ -12,30 +12,37 @@ interface ContentProps{
     onAddToFavourite: (contact: ContactInfo) => void, 
     onDeleteFromFavourite: (contact: ContactInfo) => void,
     onPageChange: (limit: number, offset: number) => void,
-    onError: (errMsg: string) => void;
+    onApiStatus: (errMsg: string, isSuceess?: boolean) => void;
 }
-
+/** Main Component to render the Contact information as Rows 
+ *  It performs all the actions on the contacts like adding to OR deleteing from favourites
+ *  deleting a particular contact altogether
+ *  It also renders the Edit Component as Popup to edit the contact details
+ */
 const Content: React.FC<ContentProps> = (props): React.ReactElement => {
 
-    const { contactList, onDeleteClick, onAddToFavourite, onDeleteFromFavourite, isFavourite = false, currentPage, onPageChange, onError } = props || {};
+    const { contactList, onDeleteClick, onAddToFavourite, onDeleteFromFavourite, isFavourite = false, currentPage, onPageChange, onApiStatus } = props || {};
 
     const [editNamePopup, setEditNamePopup] = useState<boolean| number>(false);
 
     const [contentView, setContentView] = useState<boolean>(true);
 
 
+    /** event callback to add or delete the contact from favourites */
     const handleFavourite = (e:  React.MouseEvent<HTMLButtonElement>, contact: ContactInfo) => {
 
         !isFavourite ? onAddToFavourite(contact) : onDeleteFromFavourite(contact); 
         e.stopPropagation();
     }
 
+    /** event callback to fire the onDeleteClick callback on the clicked id */
     const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
 
         onDeleteClick(id);
         e.stopPropagation();
     }
 
+    /** event callback to toggle the Edit Name popup */
     const toggleEditName = (e?: React.MouseEvent<HTMLButtonElement| HTMLDivElement>, id?: number) => {
 
         if(id){
@@ -46,6 +53,7 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
         e && e.stopPropagation();
     }
 
+    /** event callback to toggle the Accordian to whether hide or show a particular content */
     const toggleView = (e?: React.MouseEvent<HTMLDivElement>) => {
 
         setContentView(prev => !prev);
@@ -97,7 +105,7 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
                                         currentPage={currentPage} 
                                         onPageChange={onPageChange} 
                                         togglePopup={toggleEditName}
-                                        onError={onError}
+                                        onApiStatus={onApiStatus}
                                     />
                                 </PopupWrapper>
                             }

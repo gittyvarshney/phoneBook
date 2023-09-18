@@ -1,59 +1,56 @@
 import { useEffect, useState, useRef } from "react";
 import { ApolloQueryResult, useQuery, useMutation } from "@apollo/client";
 import { DELETE_CONTACT, GET_PHONE_NUMBERS, ADD_CONTACT } from "../queries/getDataQuery";
-import { Data, ContactList, ContactInfo, Phone, DeletedData, ErrorStatus } from "../types/contactType";
-import { getDataFromLocalStorage, setDataInLocalStorage } from "./manageLocalStorage";
+import { Data, ContactList, ContactInfo, Phone, DeletedData, APIStatus } from "../types/contactType";
+import { getDataFromLocalStorage, setDataInLocalStorage } from "../manageLocalStorage";
 import { filterOutFavourites, filterContactById, checkIfListIncludesId } from "../helper";
 
-import { PAGE_LIMIT, COMMON_ERRORS } from "../constants";
+import { PAGE_LIMIT, COMMON_ERRORS, STATUS, SUCCESS_TEXT } from "../constants";
 
-import { MOCK_DATA_RES, MOCK_DATA_RES_EMPTY } from "../mock";
-
-
+/** This is the main hook which performs all the heavy lifting of the project
+ *  Its main function includes:
+ *  1. Setting the favourite contacts , regular contacts, current page, if next PageShouldBeDisabled, the search input & api status
+ *  2. Managing pagination (fetchPageData)
+ *  3. Managing addition and deletion of favourite contact (onAddToFavourite, onDeleteFromFavourite)
+ *  4. Managing deletion of contact as well as addition of new contact (onDeleteClick, onCreateNewContact)
+ */
 export const useDataQuery = () => {
 
+    /** fetch contact list query with limit and offset  */
     const { refetch: fetchContactData } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
+    /** graphQl query for deletion of contact */
     const [ deleteContactById, { data: deletedData, loading: loadingDelete, error: errorDeleteing }] = useMutation(DELETE_CONTACT, {
-        onError: (err) => {
-
-            setErrorStatus({status: true, statusMessage: err.message})
-        }
+        onError: (err) => { setApiStatus({status: STATUS.FAILURE, statusMessage: err.message}) }
     });
 
-      console.log("deleted data: ", deletedData, "loadingDeleted: ", loadingDelete, "error deleting: ", errorDeleteing);
-
-      const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT, {
-        onError: (err) => {
-
-            setErrorStatus({status: true, statusMessage: err.message})
-        }
+    /** graphQl query for addition of contact */
+    const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT, {
+        onError: (err) => {  setApiStatus({status: STATUS.FAILURE, statusMessage: err.message}) }
       });
 
-      console.log("addition data: ", additonData, "loadingaddition: ", loadingAdd, "error addition: ", errorAdding);
+    const [ currPage, setCurrPage ] = useState<number>(0);
 
-      const [ currPage, setCurrPage ] = useState<number>(0);
-
-      const [ favourites, setFavourites] = useState<ContactList>([]);
+    const [ favourites, setFavourites] = useState<ContactList>([]);
   
-      const [ regulars, setRegulars] = useState<ContactList>([]);
+    const [ regulars, setRegulars] = useState<ContactList>([]);
 
-      const [ nextPageDisabled, setNextPageDisabled] = useState<boolean>(false);
+    const [ nextPageDisabled, setNextPageDisabled] = useState<boolean>(false);
 
-      const [ searchInput, setSearchInput ] = useState<string>('');
+    const [ searchInput, setSearchInput ] = useState<string>('');
 
-      const [ errorStatus, setErrorStatus ] = useState<ErrorStatus>({status: false, statusMessage: ''});
+    const [ apiStatus, setApiStatus ] = useState<APIStatus>({status: null, statusMessage: ''});
 
-      const initRender = useRef<boolean>(true);
+    /** a ref to track if user has input any value on search Input initially */
+    const isSearchBarInitiallyEmpty = useRef<boolean>(true);
 
-      useEffect(() => {
+    /** On Initial render if we have data already present on local storage use it otherwise fetch the
+     *  fresh data from page 1
+     */
+    useEffect(() => {
 
         const { userData, userPage, userFavourites } = getDataFromLocalStorage();
 
-        console.log("user data mount is: ", userData);
-        console.log("favourites data mount is: ", userFavourites);
-        console.log("user page mount is: ", userPage);
-    
         if(userData && typeof userPage === 'number' && userFavourites){
             setCurrPage(Number(userPage));
             setFavourites(userFavourites);
@@ -61,40 +58,46 @@ export const useDataQuery = () => {
         }else{
             fetchPageData(PAGE_LIMIT,0)
         }
-    
-        },[]);
 
-      useEffect(() => {
+    },[]);
 
-        if(searchInput || !initRender.current){
-            console.log("in search input");
-            initRender.current = false;
+    /** If search input changes we show the corresponding data from page 1 */
+    useEffect(() => {
+
+        /** It will only fire if user enter some value on searchInput initially 
+         *  after that it will fire on every input change
+         */
+        if(searchInput || !isSearchBarInitiallyEmpty.current){
+            isSearchBarInitiallyEmpty.current = false;
             fetchPageData(PAGE_LIMIT,0)
         }
 
-      },[searchInput])
+    },[searchInput])
 
-      useEffect(() => {
+    /** When successfully added the data calling onSuccessFullAddition */
+    useEffect(() => {
 
-        if(additonData){
-            const { first_name, last_name } = additonData;
-            onSuccessFullAddition();
-        }
+            if(additonData){
+                onSuccessFullAddition();
+            }
 
-    },[additonData, loadingAdd, errorAdding])
+    },[additonData])
 
+    /** When successfully deleted the data calling deleteContact */
     useEffect(() => {
 
         if(deletedData){
-            console.log("deleted data is: ", deletedData);
             const { delete_contact_by_pk } = deletedData as DeletedData;
-            const { id } = delete_contact_by_pk;
-            deleteContact(id);
+            const { id = null } = delete_contact_by_pk || {};
+            id && deleteContact(id);
         }
 
     },[deletedData, loadingDelete, errorDeleteing])
 
-      const deleteContact = (contactId: number) => {
+    /** This function make sure to delete the contact from favourites page as well if included
+     *   refreshes the page and update the api status to success
+     */
+    const deleteContact = (contactId: number) => {
 
         if(checkIfListIncludesId(favourites,contactId)){
             const newFavouritesList = filterContactById(favourites,contactId);
@@ -102,28 +105,39 @@ export const useDataQuery = () => {
         }
 
         fetchPageData(PAGE_LIMIT, currPage);
+        setApiStatus({status: STATUS.SUCCESS, statusMessage: SUCCESS_TEXT.DELETION_SUCCESS})
 
     }
 
-
+    /** This function refreshes the page on successful addition 
+     *   and update the api status to success
+     */
     const onSuccessFullAddition = () => {
 
         fetchPageData(PAGE_LIMIT, currPage);
-
+        setApiStatus({status: STATUS.SUCCESS, statusMessage: SUCCESS_TEXT.ADDITION_SUCCESS})
     }
 
-    const onError = (errMsg: string) => {
+    /** Callback function used to update the apiStatus with message provided */
+    const onApiStatus = (errMsg: string, isSuccess: boolean = false) => {
+
+        const apiStatus = errMsg ? (isSuccess ? STATUS.SUCCESS : STATUS.FAILURE) : null;
         
-        setErrorStatus({ status: errMsg ? true : false,  statusMessage: errMsg || ''})
+        setApiStatus({ status: apiStatus,  statusMessage: errMsg || ''})
         
     }
 
+    /** Callback function to  fire the fetch contact data with desired limit and page offset */
     const fetchPageData = (limit: number, offset: number, favList: ContactList| null = null) => {
-        const searchQuery = searchInput ? { first_name: {_ilike: `%${searchInput}%`} } : {};
-        // Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
+        const searchQuery = searchInput ? { _or: [
+            { first_name: { _ilike: `%${searchInput}%` } },
+            { last_name: { _ilike: `%${searchInput}%` } }
+          ]}: {};
+
+        /** GraphQl API to fetch Contact data */
         fetchContactData({
                 limit,
-                offset,
+                offset: offset*limit,
                 where: searchQuery
         })
         .then((response: ApolloQueryResult<Data>) => {
@@ -131,35 +145,39 @@ export const useDataQuery = () => {
             const { data, error } = response;
 
             if(error){
-
+                setApiStatus({status: STATUS.FAILURE, statusMessage: COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED})
             }else{
                 const { contact: contactList } = data;
                 const currFavourites = favList || favourites;
 
+                /** if not on initial page and contact list have 0 elements on this page 
+                 *  then simply disable the next click
+                 */
                 if(offset !== 0 && contactList.length === 0) {
                     setNextPageDisabled(true);
                 }else{
                     if(currFavourites && Array.isArray(currFavourites) && currFavourites.length > 0) {
+                        /** filter out the contacts which are already on the favourites list */
                         const newRegularList = filterOutFavourites( contactList, currFavourites);
                         setRegulars(newRegularList);
                     }else{
                         setRegulars(contactList);
                     }
 
-
+                    /** also if entries less than the limit then disable the next page */
                     setNextPageDisabled(contactList.length < PAGE_LIMIT ? true : false);
 
                     setCurrPage(offset);
                 }
             }
 
-        }).catch((err: Error) => {
-            setErrorStatus({status: true, statusMessage: COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED})
-            console.log("error is: ", err.message)
+        }).catch((err: unknown) => {
+            setApiStatus({status: STATUS.FAILURE, statusMessage: COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED})
         })
 
     }
 
+    /** Callback function for adding the data to fav */
     const onAddToFavourite = (contact: ContactInfo) => {
 
         const newFavouritesList = [...favourites, contact];
@@ -170,6 +188,7 @@ export const useDataQuery = () => {
 
     }
 
+    /** Callback function for deleting the data from fav */
     const onDeleteFromFavourite = (contact: ContactInfo) => {
 
         const { id } = contact;
@@ -184,7 +203,7 @@ export const useDataQuery = () => {
 
     }
 
-
+    /** Callback function to delete data from the database */
     const onDeleteClick = (contactId: number) => {
         deleteContactById({
             variables: {
@@ -193,8 +212,8 @@ export const useDataQuery = () => {
         })
     }
 
+    /** Callback function to add a new contact to the database */
     const onCreateNewContact = (firstName: string, lastName: string, contacts:Phone[]  ) => {
-        console.log("add new contact called");
         addNewContact({
             variables: {
                 first_name: firstName,
@@ -204,8 +223,7 @@ export const useDataQuery = () => {
         })
     }
 
-    /** Use Effect to save in local storage */
-
+    /** Use Effect used to save data in local storage whenever the state updates */
     useEffect(() => {
         setDataInLocalStorage(regulars,favourites,currPage,searchInput);
     },[searchInput,favourites,regulars,currPage])
@@ -213,14 +231,14 @@ export const useDataQuery = () => {
 
 
 
-    return [{ favouritesContacts: favourites, regularContacts: regulars, currentPage: currPage, isNextPageDisabled: nextPageDisabled, errorStatus }, 
-        {    onDeleteClick, 
-             onAddToFavourite,
-             onDeleteFromFavourite, 
-             onCreateNewContact, 
-             fetchPageData, 
-             onChangeInput: setSearchInput, 
-             onError}] as const
+    return [{   favouritesContacts: favourites, regularContacts: regulars, currentPage: currPage, isNextPageDisabled: nextPageDisabled, apiStatus }, 
+            {   onDeleteClick, 
+                onAddToFavourite,
+                onDeleteFromFavourite, 
+                onCreateNewContact, 
+                fetchPageData, 
+                onChangeInput: setSearchInput, 
+                onApiStatus}] as const
 
 }
 

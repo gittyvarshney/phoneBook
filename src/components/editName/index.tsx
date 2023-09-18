@@ -3,7 +3,7 @@ import { ApolloQueryResult, useQuery, useMutation } from '@apollo/client';
 import { GET_PHONE_NUMBERS, EDIT_CONTACT_NAME } from '../../queries/getDataQuery';
 import { validateFields } from '../../helper';
 import { PAGE_LIMIT } from '../../constants';
-import { COMMON_ERRORS } from '../../constants';
+import { COMMON_ERRORS, SUCCESS_TEXT } from '../../constants';
 
 import { Popup, Button } from './styles';
 
@@ -16,27 +16,34 @@ interface EditNameProps{
     currentPage: number,
     onPageChange: (limit: number, offset: number) => void,
     togglePopup: () => void,
-    onError: (errMsg: string) => void;
+    onApiStatus: (errMsg: string, isSuceess?: boolean) => void;
 }
 
-
+/** Component used to Render the Edit Contact Popup
+ *  it fires the onPageChange callback when click on Submit,
+ *  can togglePopup on cancel,
+ *  & triggering the onApiStatus callback when the api returned the corresponding response
+ */
 const EditName: React.FC<EditNameProps> = (props) => {
 
-    const {firstName, lastName, contactId, togglePopup, onPageChange, currentPage, onError } = props;
+    const {firstName, lastName, contactId, togglePopup, onPageChange, currentPage, onApiStatus } = props;
 
     const { refetch: searchforSameName } = useQuery(GET_PHONE_NUMBERS, { skip: true });
 
-    const [ editName, { data: editedData, loading, error }] = useMutation(EDIT_CONTACT_NAME);
+    const [ editName, { data: editedData, loading }] = useMutation(EDIT_CONTACT_NAME, {
+        onError: (err) => { onApiStatus( COMMON_ERRORS.EDIT_CONTACT_APOLLO_QUERY_FAILED); }
+    });
 
-      useEffect(() => {
+    /** On getting response of GraphQL query performing the corresponding side effects */
+    useEffect(() => {
 
         if(editedData){
-            console.log("edit data is: ", editedData);
-            onPageChange(PAGE_LIMIT, currentPage)
+            onPageChange(PAGE_LIMIT, currentPage);
+            onApiStatus(SUCCESS_TEXT.EDITION_SUCCESS,true);
             togglePopup();
         }
 
-      },[editedData])
+    },[editedData])
 
     const [userName, setUserName] = useState({ first_name: '', last_name: ''});
 
@@ -44,6 +51,7 @@ const EditName: React.FC<EditNameProps> = (props) => {
 
     const { first_name: updateFirstName, last_name: updateLastName } = userName;
 
+    /** event callback to handle input change on firstname and lastname */
     const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target; 
 
@@ -56,6 +64,10 @@ const EditName: React.FC<EditNameProps> = (props) => {
         e.stopPropagation();
     }
 
+    /** on clicking on Submit first performing the validation,
+     *  then checking if the same name is present on the database or not,
+     *  then finally mutating the database with the edited contact
+     */
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
 
         const validationRes = validateFields(updateFirstName,updateLastName);
@@ -93,7 +105,7 @@ const EditName: React.FC<EditNameProps> = (props) => {
                     }
                 }
             }).catch((err: Error) => {
-                onError(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED)
+                onApiStatus(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED)
             })
         }
         e.stopPropagation();

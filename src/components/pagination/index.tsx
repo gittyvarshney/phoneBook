@@ -6,11 +6,15 @@ interface PaginationProps{
     onPageChange: (limit: number, offset: number) => void,
     isNextDisabled: boolean
 }
-
+/** Component which renders the pagination content
+ *  It fires the onPageChange Event when clicking the
+ *  next or previous buttons
+ */
 const Pagination: React.FC<PaginationProps> = (props): React.ReactElement => {
 
     const { currentPage, onPageChange, isNextDisabled } = props;
 
+    /** event callback to either increase or decrease the page number */
     const handlePageChange = (e: React.MouseEvent<HTMLButtonElement>) => {
         const id = (e.target as HTMLButtonElement).id;
         

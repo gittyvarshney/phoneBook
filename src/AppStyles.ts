@@ -17,7 +17,7 @@ export const ContentSection = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
-    height: 78.4vh;
+    height: 75vh;
     overflow-y: auto;
 
     @media (max-width: 600px) {

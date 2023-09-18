@@ -1,8 +1,7 @@
 import React from 'react';
 import { HeaderWrapper } from './styles';
-// import './styles.css';
 
-
+/** Component To Show Read Only heading Information */
 const HeaderRow: React.FC<{}> = (): React.ReactElement => {
     return (
         <HeaderWrapper className='headerWrapper'>

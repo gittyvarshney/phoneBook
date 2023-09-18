@@ -1,3 +1,4 @@
+/** Consisting of all Data types used within the project except local types, Props types & style types */
 
 export type Phone = {
     number: string
@@ -25,7 +26,7 @@ export type Data = {
     contact: ContactList
 }
 
-export type ErrorStatus = {
-    status: boolean,
+export type APIStatus = {
+    status: null | 'success' | 'failure'
     statusMessage: string
-}
+};

@@ -5,24 +5,26 @@ import HeaderRow from "./components/header";
 import Pagination from "./components/pagination";
 import NewContact from "./components/newContact";
 import SearchInput from "./components/search";
+import Toast from "./components/toast";
 
 import { Div, ContentSection, HeaderSection } from "./AppStyles";
-import { Toast } from "./components/taost";
 
 const App = () => {
 
-
+  /** Main hook which will return the desired pageData with actions to perform on that data
+   *  which will be used by other components to render the data and perform the callback actions
+   */
   const [pageData, actions] = useDataQuery();
 
-  const {favouritesContacts, regularContacts, currentPage, isNextPageDisabled, errorStatus } = pageData;
+  const {favouritesContacts, regularContacts, currentPage, isNextPageDisabled, apiStatus } = pageData;
 
-  const { onChangeInput, onCreateNewContact, fetchPageData, onError, ...restCallToActions } = actions;
+  const { onChangeInput, onCreateNewContact, fetchPageData, onApiStatus, ...restCallToActions } = actions;
 
   return (
     <>
       <HeaderSection>
         <Div>
-          <NewContact onSubmitContact={onCreateNewContact} onError={onError} />
+          <NewContact onSubmitContact={onCreateNewContact} onApiStatus={onApiStatus} />
           <SearchInput onChangeInput={onChangeInput}  />
         </Div>
         <HeaderRow  />
@@ -33,7 +35,7 @@ const App = () => {
         currentPage={currentPage}
         onPageChange={fetchPageData}
         isFavourite={true}
-        onError={onError}
+        onApiStatus={onApiStatus}
         {...restCallToActions} 
         />
 
@@ -41,12 +43,11 @@ const App = () => {
         contactList={regularContacts}
         currentPage={currentPage}
         onPageChange={fetchPageData}
-        onError={onError}
+        onApiStatus={onApiStatus}
         {...restCallToActions} 
-
         />
       </ContentSection>
-      <Toast onError={onError} errorStatus={errorStatus} />
+      <Toast apiStatus={apiStatus} onApiStatus={onApiStatus} />
       <Pagination currentPage={currentPage} isNextDisabled={isNextPageDisabled} onPageChange={fetchPageData} />
 
     </>

@@ -10,23 +10,31 @@ import { Button, PopupWrapper, CustomButton } from './styles';
 
 interface NewContactProps{
     onSubmitContact: (firstName: string, lastName: string, phones: Phone[]) => void
-    onError: (errMsg: string) => void;
+    onApiStatus: (errMsg: string, isSuceess?: boolean) => void;
 }
 
-const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
+/** Component used to Render the Create New Button & Create Contact Popup
+ *  it fires the onSubmitContact callback when submitting the new entry
+ *  and corresponding onApiStatus whether the api failed or succeed
+ */
+const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onApiStatus}) => {
 
     const { refetch: searchforSameName } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
     const [createContactPopup, setCreateContactPopup] = useState<boolean>(false);
 
+    /** state saving first name and last name input with values */
     const [userName, setUserName] = useState({ first_name: '', last_name: '', });
 
+    /** state saving array of contact inputs with values */
     const [userContact, setUserContact] = useState<Phone[]>([{number: ''}]);
 
+    /** state saving the validation error */
     const [validationError, setValidationError] = useState<string>('');
 
     const { first_name: firstName, last_name: lastName} = userName;
 
+    /** on Changing the first or last name saving the corresponding details on userName state */
     const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const target = e.target; 
 
@@ -39,6 +47,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
         e.stopPropagation();
     }
 
+    /** on Clicking Add Contact adding the state with an additional empty contact */
     const handleContactAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
 
         setUserContact([...userContact, { number: ''}])
@@ -47,6 +56,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
 
     }
 
+    /** deleting the corresponding contact number index on clicking on Delete */
     const handleDeleteContact = (e: React.MouseEvent<HTMLButtonElement>) => {
         const id = (e.target as HTMLButtonElement).id;
         const id_index = Number(id);
@@ -63,6 +73,7 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
 
     }
 
+    /** on contact number input change saving the value on corresponding index */
     const handleInputContact = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
 
         const inputVal = e.target.value;
@@ -76,6 +87,10 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
         e.stopPropagation();
     }
 
+    /** on clicking on submit first performing the validation,
+     *  then checking if the same name is present on the database or not,
+     *  then finally mutating the database with the new contact
+     */
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
 
         const validationRes = validateFields(firstName,lastName,userContact);
@@ -83,7 +98,8 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
         if(validationRes){
             setValidationError(validationRes);
         }else{
-            /** Checking if It is a unique name or not */
+
+            /** Checking if the name submitted is unique or not by querying the database */
             searchforSameName({
                 limit: 1,
                 offset: 0,
@@ -108,13 +124,14 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
                         togglePopup();
                     }
                 }
-            }).catch((err: Error) => {
-                onError(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED);
+            }).catch((err: unknown) => {
+                onApiStatus(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED);
             })
         }
         e.stopPropagation();
     }
 
+    /** toggle popup open state */
     const togglePopup = (e?: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         setCreateContactPopup((prev) => !prev);
         e && e.stopPropagation();
