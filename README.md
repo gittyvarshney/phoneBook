@@ -49,10 +49,10 @@ Implementation of Responsive UI for tokopedia online Web project assessment.
   - manageLocalStorage.ts (local storage functions)
   
 ## Flow Chart
-![Database](https://github.com/gittyvarshney/adminUI/blob/main/flow-chart.png?raw=true)
+![Database](https://github.com/gittyvarshney/phoneBook/blob/main/flow-chart.png?raw=true)
 
 ## Breakup
-![Database](https://github.com/gittyvarshney/adminUI/blob/main/breakup.png?raw=true)
+![Database](https://github.com/gittyvarshney/phoneBook/blob/main/breakup.png?raw=true)
 
 ## Deployment URL
 https://gittyvarshney.github.io/phoneBook
