@@ -4,7 +4,7 @@ import { GET_PHONE_NUMBERS } from '../../queries/getDataQuery';
 import { ApolloQueryResult } from '@apollo/client';
 import { Data } from '../../types/contactType';
 import { useQuery } from '@apollo/client';
-import { VALIDATION_ERRORS, COMMON_ERRORS } from '../../constants';
+import { COMMON_ERRORS } from '../../constants';
 import { validateFields } from '../../helper';
 import { Button, PopupWrapper, CustomButton } from './styles';
 
