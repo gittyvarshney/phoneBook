@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { ApolloQueryResult, useQuery, useMutation } from "@apollo/client";
 import { DELETE_CONTACT, GET_PHONE_NUMBERS, ADD_CONTACT } from "../queries/getDataQuery";
-import { Data, ContactList, ContactInfo, Phone, DeletedData } from "../types/contactType";
+import { Data, ContactList, ContactInfo, Phone, DeletedData, ErrorStatus } from "../types/contactType";
 import { getDataFromLocalStorage, setDataInLocalStorage } from "./manageLocalStorage";
 import { filterOutFavourites, filterContactById, checkIfListIncludesId } from "../helper";
 
-import { PAGE_LIMIT } from "../constants";
+import { PAGE_LIMIT, COMMON_ERRORS } from "../constants";
 
 import { MOCK_DATA_RES, MOCK_DATA_RES_EMPTY } from "../mock";
 
@@ -14,11 +14,21 @@ export const useDataQuery = () => {
 
     const { refetch: fetchContactData } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
-    const [ deleteContactById, { data: deletedData, loading: loadingDelete, error: errorDeleteing }] = useMutation(DELETE_CONTACT);
+    const [ deleteContactById, { data: deletedData, loading: loadingDelete, error: errorDeleteing }] = useMutation(DELETE_CONTACT, {
+        onError: (err) => {
+
+            setErrorStatus({status: true, statusMessage: err.message})
+        }
+    });
 
       console.log("deleted data: ", deletedData, "loadingDeleted: ", loadingDelete, "error deleting: ", errorDeleteing);
 
-      const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT);
+      const [ addNewContact, { data: additonData, loading: loadingAdd, error: errorAdding }] = useMutation(ADD_CONTACT, {
+        onError: (err) => {
+
+            setErrorStatus({status: true, statusMessage: err.message})
+        }
+      });
 
       console.log("addition data: ", additonData, "loadingaddition: ", loadingAdd, "error addition: ", errorAdding);
 
@@ -31,6 +41,8 @@ export const useDataQuery = () => {
       const [ nextPageDisabled, setNextPageDisabled] = useState<boolean>(false);
 
       const [ searchInput, setSearchInput ] = useState<string>('');
+
+      const [ errorStatus, setErrorStatus ] = useState<ErrorStatus>({status: false, statusMessage: ''});
 
       const initRender = useRef<boolean>(true);
 
@@ -100,10 +112,14 @@ export const useDataQuery = () => {
 
     }
 
-
+    const onError = (errMsg: string) => {
+        
+        setErrorStatus({ status: errMsg ? true : false,  statusMessage: errMsg || ''})
+        
+    }
 
     const fetchPageData = (limit: number, offset: number, favList: ContactList| null = null) => {
-        const searchQuery = searchInput ? { first_name: {_like: `%${searchInput}%`} } : {};
+        const searchQuery = searchInput ? { first_name: {_ilike: `%${searchInput}%`} } : {};
         // Promise.resolve(offset === 1 ? MOCK_DATA_RES_EMPTY : MOCK_DATA_RES)
         fetchContactData({
                 limit,
@@ -138,9 +154,8 @@ export const useDataQuery = () => {
             }
 
         }).catch((err: Error) => {
+            setErrorStatus({status: true, statusMessage: COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED})
             console.log("error is: ", err.message)
-        }).finally(() => {
-
         })
 
     }
@@ -198,8 +213,14 @@ export const useDataQuery = () => {
 
 
 
-    return [{ favouritesContacts: favourites, regularContacts: regulars, currentPage: currPage, isNextPageDisabled: nextPageDisabled }, 
-        { onDeleteClick, onAddToFavourite, onDeleteFromFavourite, onCreateNewContact, fetchPageData, onChangeInput: setSearchInput}] as const
+    return [{ favouritesContacts: favourites, regularContacts: regulars, currentPage: currPage, isNextPageDisabled: nextPageDisabled, errorStatus }, 
+        {    onDeleteClick, 
+             onAddToFavourite,
+             onDeleteFromFavourite, 
+             onCreateNewContact, 
+             fetchPageData, 
+             onChangeInput: setSearchInput, 
+             onError}] as const
 
 }
 

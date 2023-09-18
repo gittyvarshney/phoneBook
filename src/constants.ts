@@ -10,6 +10,9 @@ export const VALIDATION_ERRORS = {
 
 export const COMMON_ERRORS = {
     SOMETHING_WENT_WRONG: 'Opps Something Went Wrong',
+    GET_CONTACT_APOLLO_QUERY_FAILED: 'Apollo GetContact Query Failed Please Report',
+    ADD_NEW_CONTACT_APOLLO_QUERY_FAILED: 'Apollo AddContact Query Failed Please Report',
+    DELETE_CONTACT_APOLLO_QUERY_FAILED: 'Apollo DeleteContact Query Failed Please Report',
     NON_UNIQUE_NAME: 'Name is not Unique'
 }
 

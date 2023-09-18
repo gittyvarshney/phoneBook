@@ -7,21 +7,22 @@ import NewContact from "./components/newContact";
 import SearchInput from "./components/search";
 
 import { Div, ContentSection, HeaderSection } from "./AppStyles";
+import { Toast } from "./components/taost";
 
 const App = () => {
 
 
   const [pageData, actions] = useDataQuery();
 
-  const {favouritesContacts, regularContacts, currentPage, isNextPageDisabled } = pageData;
+  const {favouritesContacts, regularContacts, currentPage, isNextPageDisabled, errorStatus } = pageData;
 
-  const { onChangeInput, onCreateNewContact, fetchPageData, ...restCallToActions } = actions;
+  const { onChangeInput, onCreateNewContact, fetchPageData, onError, ...restCallToActions } = actions;
 
   return (
     <>
       <HeaderSection>
         <Div>
-          <NewContact onSubmitContact={onCreateNewContact} />
+          <NewContact onSubmitContact={onCreateNewContact} onError={onError} />
           <SearchInput onChangeInput={onChangeInput}  />
         </Div>
         <HeaderRow  />
@@ -32,6 +33,7 @@ const App = () => {
         currentPage={currentPage}
         onPageChange={fetchPageData}
         isFavourite={true}
+        onError={onError}
         {...restCallToActions} 
         />
 
@@ -39,10 +41,12 @@ const App = () => {
         contactList={regularContacts}
         currentPage={currentPage}
         onPageChange={fetchPageData}
+        onError={onError}
         {...restCallToActions} 
 
         />
       </ContentSection>
+      <Toast onError={onError} errorStatus={errorStatus} />
       <Pagination currentPage={currentPage} isNextDisabled={isNextPageDisabled} onPageChange={fetchPageData} />
 
     </>

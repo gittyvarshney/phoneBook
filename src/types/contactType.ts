@@ -24,3 +24,8 @@ export type ContactList = ContactInfo[]
 export type Data = {
     contact: ContactList
 }
+
+export type ErrorStatus = {
+    status: boolean,
+    statusMessage: string
+}

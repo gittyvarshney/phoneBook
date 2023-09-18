@@ -10,9 +10,10 @@ import { Button, PopupWrapper, CustomButton } from './styles';
 
 interface NewContactProps{
     onSubmitContact: (firstName: string, lastName: string, phones: Phone[]) => void
+    onError: (errMsg: string) => void;
 }
 
-const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
+const NewContact: React.FC<NewContactProps> = ({onSubmitContact, onError}) => {
 
     const { refetch: searchforSameName } = useQuery(GET_PHONE_NUMBERS, { skip: true })
 
@@ -20,9 +21,9 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
 
     const [userName, setUserName] = useState({ first_name: '', last_name: '', });
 
-    const [userContact, setUserContact] = useState<Phone[]>([]);
+    const [userContact, setUserContact] = useState<Phone[]>([{number: ''}]);
 
-    const [validationError, setValidationError] = useState<string>(VALIDATION_ERRORS.NAMING_INVALID);
+    const [validationError, setValidationError] = useState<string>('');
 
     const { first_name: firstName, last_name: lastName} = userName;
 
@@ -102,9 +103,13 @@ const NewContact: React.FC<NewContactProps> = ({onSubmitContact}) => {
                     }else{
                         onSubmitContact(firstName,lastName,userContact);
                         setValidationError('');
-                        togglePopup()
+                        setUserName({ first_name: '', last_name: '', });
+                        setUserContact([{number: ''}]);
+                        togglePopup();
                     }
                 }
+            }).catch((err: Error) => {
+                onError(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED);
             })
         }
         e.stopPropagation();

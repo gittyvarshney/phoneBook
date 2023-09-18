@@ -3,6 +3,7 @@ import { ApolloQueryResult, useQuery, useMutation } from '@apollo/client';
 import { GET_PHONE_NUMBERS, EDIT_CONTACT_NAME } from '../../queries/getDataQuery';
 import { validateFields } from '../../helper';
 import { PAGE_LIMIT } from '../../constants';
+import { COMMON_ERRORS } from '../../constants';
 
 import { Popup, Button } from './styles';
 
@@ -14,13 +15,14 @@ interface EditNameProps{
     contactId: number,
     currentPage: number,
     onPageChange: (limit: number, offset: number) => void,
-    togglePopup: () => void
+    togglePopup: () => void,
+    onError: (errMsg: string) => void;
 }
 
 
 const EditName: React.FC<EditNameProps> = (props) => {
 
-    const {firstName, lastName, contactId, togglePopup, onPageChange, currentPage } = props;
+    const {firstName, lastName, contactId, togglePopup, onPageChange, currentPage, onError } = props;
 
     const { refetch: searchforSameName } = useQuery(GET_PHONE_NUMBERS, { skip: true });
 
@@ -90,8 +92,8 @@ const EditName: React.FC<EditNameProps> = (props) => {
                         })
                     }
                 }
-            }).catch((reason) => {
-                console.log(reason);
+            }).catch((err: Error) => {
+                onError(COMMON_ERRORS.GET_CONTACT_APOLLO_QUERY_FAILED)
             })
         }
         e.stopPropagation();

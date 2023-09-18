@@ -12,11 +12,12 @@ interface ContentProps{
     onAddToFavourite: (contact: ContactInfo) => void, 
     onDeleteFromFavourite: (contact: ContactInfo) => void,
     onPageChange: (limit: number, offset: number) => void,
+    onError: (errMsg: string) => void;
 }
 
 const Content: React.FC<ContentProps> = (props): React.ReactElement => {
 
-    const { contactList, onDeleteClick, onAddToFavourite, onDeleteFromFavourite, isFavourite = false, currentPage, onPageChange } = props || {};
+    const { contactList, onDeleteClick, onAddToFavourite, onDeleteFromFavourite, isFavourite = false, currentPage, onPageChange, onError } = props || {};
 
     const [editNamePopup, setEditNamePopup] = useState<boolean| number>(false);
 
@@ -96,6 +97,7 @@ const Content: React.FC<ContentProps> = (props): React.ReactElement => {
                                         currentPage={currentPage} 
                                         onPageChange={onPageChange} 
                                         togglePopup={toggleEditName}
+                                        onError={onError}
                                     />
                                 </PopupWrapper>
                             }
