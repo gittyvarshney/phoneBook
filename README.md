@@ -54,6 +54,9 @@ Implementation of Responsive UI for tokopedia online Web project assessment.
 ## Breakup
 ![Database](https://github.com/gittyvarshney/phoneBook/blob/main/breakup.png?raw=true)
 
+## Performance
+![Database](https://github.com/gittyvarshney/phoneBook/blob/main/performance.png?raw=true)
+
 ## Deployment URL
 https://gittyvarshney.github.io/phoneBook
 
