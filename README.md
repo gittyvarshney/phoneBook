@@ -1,6 +1,6 @@
 # Phone-book
 
-Implementation of Responsive UI for tokopedia online Web project assessment.
+Implementation of Responsive UI for Web project assessment.
 
 ### Libraries Used
 -  Boilerplate
